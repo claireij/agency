@@ -180,6 +180,17 @@ class AgencyTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
 
+    def test_post_actor_400(self):
+        response = self.client().post(
+            '/actors',
+            json={'name': '', 'age': '', "gender": ""},
+            headers={"Authorization": "Bearer " + CASTING_DIRECTOR}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Bad Request, pls check your inputs')
+
 #TODO Two tests of RBAC for each role
 
 
