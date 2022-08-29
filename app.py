@@ -12,6 +12,11 @@ def create_app(test_config=None):
     setup_db(app)
     CORS(app)
 
+    @app.route('/', methods=['GET'])
+    def health_check():
+        return 'Healthy'
+
+
     @app.route('/actors', methods=['GET'])
     @requires_auth('get:actors')
     def get_actors(jwt):
