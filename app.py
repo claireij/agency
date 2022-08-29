@@ -48,9 +48,9 @@ def create_app(test_config=None):
 
     @app.route('/actors/<int:actor_id>', methods=['DELETE'])
     @requires_auth('delete:actors')
-    def delete_actor(actor_id):
+    def delete_actor(jwt, actor_id):
         actor = Actor.query.filter(Actor.id == actor_id).one_or_none()
-        
+
         if actor is None:
             abort(404)
         
@@ -62,9 +62,11 @@ def create_app(test_config=None):
             'deleted': actor_id
         })
 
+       
+
     @app.route('/movies/<int:movie_id>', methods=['DELETE'])
     @requires_auth('delete:movies')
-    def delete_movie(movie_id):
+    def delete_movie(jwt, movie_id):
         movie = Movie.query.filter(Movie.id == movie_id).one_or_none()
 
         if movie is None:
@@ -172,16 +174,25 @@ def create_app(test_config=None):
     
     @app.errorhandler(404)
     def not_found(error):
-        jsonify({
+        return jsonify({
             "success": False,
             "error": 404,
             "message": "resource not found"
         }), 404
 
+    @app.errorhandler(401)
+    def unauthorized(error):
+        return jsonify({
+            "success": False,
+            "error": 401,
+            "message": "unauthorized"
+        }), 401
+
     @app.errorhandler(AuthError)
     def process_AuthError(error):
         response = jsonify(error.error)
         response.status_code = error.status_code
+        return response
 
     return app
 

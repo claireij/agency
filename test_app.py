@@ -63,7 +63,9 @@ class AgencyTestCase(unittest.TestCase):
         pass
 
     def test_get_actors(self):
-        res = self.client().get('/actors')
+        res = self.client().get('/actors',
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -71,7 +73,9 @@ class AgencyTestCase(unittest.TestCase):
         self.assertTrue(data['actors'])
 
     def test_get_movies(self):
-        res = self.client().get('/movies')
+        res = self.client().get('/movies',
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -83,7 +87,8 @@ class AgencyTestCase(unittest.TestCase):
     def test_patch_actor(self):
         first_actor = Actor.query.first().id
         
-        res = self.client().patch('/actors/' + str(first_actor), json=self.new_actor)
+        res = self.client().patch('/actors/' + str(first_actor), json=self.new_actor,
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -91,14 +96,18 @@ class AgencyTestCase(unittest.TestCase):
 
     def test_patch_actor_error(self):
         first_actor = Actor.query.first().id
-        res = self.client().patch('/actors/' + str(first_actor), json=self.patch_bad_actor)
+        res = self.client().patch('/actors/' + str(first_actor), json=self.patch_bad_actor,
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         
         self.assertEqual(res.status_code, 422)
 
 
     def test_patch_movie(self):
         first_movie = Movie.query.first().id
-        res = self.client().patch('/movies/' + str(first_movie), json=self.new_movie)
+        res = self.client().patch('/movies/' + str(first_movie), json=self.new_movie,
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -106,13 +115,17 @@ class AgencyTestCase(unittest.TestCase):
 
     def test_patch_movie_error(self):
         first_movie = Movie.query.first().id
-        res = self.client().patch('/movies/' + str(first_movie), json=self.patch_bad_movie)
+        res = self.client().patch('/movies/' + str(first_movie), json=self.patch_bad_movie,
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         
         self.assertEqual(res.status_code, 422)
 
 
     def test_post_actor(self):
-        res = self.client().post('/actors', json=self.new_actor)
+        res = self.client().post('/actors', json=self.new_actor,
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -120,12 +133,16 @@ class AgencyTestCase(unittest.TestCase):
 
 
     def test_post_actor_error(self):
-        res = self.client().post('/actors', json=self.bad_actor)
+        res = self.client().post('/actors', json=self.bad_actor,
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         self.assertEqual(res.status_code, 422)
 
 
     def test_post_movie(self):
-        res = self.client().post('/movies', json=self.new_movie)
+        res = self.client().post('/movies', json=self.new_movie,
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -133,13 +150,17 @@ class AgencyTestCase(unittest.TestCase):
 
 
     def test_post_movie_error(self):
-        res = self.client().post('/movies', json=self.bad_movie)
+        res = self.client().post('/movies', json=self.bad_movie,
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         self.assertEqual(res.status_code, 422)
 
     def test_delete_actor(self):
         first_actor = Actor.query.first()
 
-        res = self.client().delete('/actors/' + str(first_actor.id))
+        res = self.client().delete('/actors/' + str(first_actor.id),
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         data = json.loads(res.data)
 
         actor = Actor.query.filter(Actor.id == first_actor.id).one_or_none()
@@ -154,7 +175,9 @@ class AgencyTestCase(unittest.TestCase):
 
 
     def test_delete_actor_error(self):
-        res = self.client().delete('/actors/10000')
+        res = self.client().delete('/actors/10000',
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
 
         self.assertEqual(res.status_code, 404)
 
@@ -162,7 +185,9 @@ class AgencyTestCase(unittest.TestCase):
         first_movie = Movie.query.first()
         
 
-        res = self.client().delete('/movies/' + str(first_movie.id))
+        res = self.client().delete('/movies/' + str(first_movie.id),
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
         data = json.loads(res.data)
 
         movie = Movie.query.filter(Movie.id == first_movie.id).one_or_none()
@@ -176,20 +201,46 @@ class AgencyTestCase(unittest.TestCase):
         
 
     def test_delete_movie_error(self):
-        res = self.client().delete('/movies/10000')
+        res = self.client().delete('/movies/10000',
+        headers={"Authorization": "Bearer " + os.environ['EXECUTIVE_PRODUCER']}
+        )
 
         self.assertEqual(res.status_code, 404)
 
-    def test_post_actor_400(self):
-        response = self.client().post(
-            '/actors',
-            json={'name': '', 'age': '', "gender": ""},
-            headers={"Authorization": "Bearer " + CASTING_DIRECTOR}
+    def test_nopermission_delete_casting_assistant_error(self):
+        first_movie = Movie.query.first()
+
+        res = self.client().delete('/movies/' + str(first_movie.id),
+        headers={"Authorization": "Bearer " + os.environ['CASTING_ASSISTANT']}
         )
-        data = json.loads(response.data)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Bad Request, pls check your inputs')
+
+        self.assertEqual(res.status_code, 403)
+
+    def test_nopermission_post_casting_assistant_error(self):
+        res = self.client().post('/movies', json=self.new_movie,
+        headers={"Authorization": "Bearer " + os.environ['CASTING_ASSISTANT']}
+        )
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 403)
+
+    def test_nopermission_delete_casting_director_error(self):
+        first_movie = Movie.query.first()
+
+        res = self.client().delete('/movies/' + str(first_movie.id),
+        headers={"Authorization": "Bearer " + os.environ['CASTING_DIRECTOR']}
+        )
+
+        self.assertEqual(res.status_code, 403)
+
+    def test_nopermission_post_casting_director_error(self):
+        res = self.client().post('/movies', json=self.new_movie,
+        headers={"Authorization": "Bearer " + os.environ['CASTING_DIRECTOR']}
+        )
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 403)
+        
 
 #TODO Two tests of RBAC for each role
 
