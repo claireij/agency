@@ -3,10 +3,15 @@ from flask import request, abort
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
+from os import environ as env
+from dotenv import load_dotenv
 
-AUTH0_DOMAIN = 'dev-6-s0nr-a.us.auth0.com'
+load_dotenv()
+
+API_AUDIENCE = env['API_AUDIENCE']
+AUTH0_DOMAIN = env['AUTH0_DOMAIN']
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'agency'
+
 
 ## AuthError Exception
 '''
