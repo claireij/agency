@@ -1,10 +1,6 @@
 # Agency API
 
 The Casting Agency models a company that is responsible for creating movies and managing and assigning actors to those movies. This project is a system to simplify and streamline the process of an executive producer.
-## Capstone Project
-
-My motivation for this project is to be able to show all of the skills I acquired during the Udacity Full Stack Development Course. I am espacially looking forward to coding the testing.
-The application is currently hosted at: https://agency20220826.herokuapp.com/
 
 ### Installing Dependencies
 
